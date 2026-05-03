@@ -23,10 +23,16 @@ If the link is not found in the description, the script automatically:
 
 ## Setup and Deployment
 
-This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task for easy deployment.
+This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task for easy deployment. The deployment process requires authenticating with Google Cloud Platform (GCP) before pushing the Apps Script code.
 
 ### 1. Prerequisites
-Ensure your local environment is configured with the required `.env` file containing an `APP_SCRIPT_IDS` key and the `WORKLOAD_LINK_PREFIX`.
+1. Copy the `.env-COPY` template to a new file named `.env`:
+   ```bash
+   cp .env-COPY .env
+   ```
+2. Fill in the required variables in your `.env` file:
+   - **GCP Authentication:** The deployment script uses `.scripts/configure.sh` to authenticate via a Service Account. You must provide `PROJECT_ID`, `GOOGLE_CLOUD_PROJECT`, `REGION`, `PROJECT_NUMBER`, and the path to your service account key in `GOOGLE_APPLICATION_CREDENTIALS`.
+   - **App Configuration:** Ensure `WORKLOAD_LINK_PREFIX` is set (it defaults to the Salesforce Vector URL). Leave `APP_SCRIPT_IDS` blank if you are deploying for the first time.
 
 ### 2. Deploying
 You can deploy the script directly from VS Code:
