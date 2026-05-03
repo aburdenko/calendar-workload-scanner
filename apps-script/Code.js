@@ -4,6 +4,14 @@
  * adds a note to the event, and emails the organizer.
  */
 
+function getSignificantWords(text) {
+  // split by non-alphanumeric
+  const words = text.toLowerCase().split(/[^a-z0-9]+/);
+  // filter out extremely common or generic words
+  const ignore = new Set(['notes', 'google', 'weekly', 'sync', 'session', 'meeting', 'the', 'and', 'for', 'with', 'doc', 'document', 'agenda']);
+  return new Set(words.filter(w => w.length > 2 && !ignore.has(w) && isNaN(w)));
+}
+
 function scanCalendarAndRespond() {
   const now = new Date();
   const futureDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
@@ -11,6 +19,26 @@ function scanCalendarAndRespond() {
   const myEmail = Session.getActiveUser().getEmail().toLowerCase();
 
   const processedIdsThisRun = new Set();
+  
+  // Build document cache to prevent re-fetching doc titles for every event
+  const docIdsRaw = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_IDS) 
+    ? ENV.NOTES_DOC_IDS 
+    : (PropertiesService.getScriptProperties().getProperty('NOTES_DOC_IDS') || "");
+  const docIds = docIdsRaw.split(';').map(id => id.trim()).filter(id => id.length > 0);
+  
+  const docCache = [];
+  docIds.forEach(id => {
+    try {
+      const doc = DocumentApp.openById(id);
+      docCache.push({
+        id: id,
+        name: doc.getName(),
+        words: getSignificantWords(doc.getName())
+      });
+    } catch (e) {
+      console.error(`Could not open doc ID ${id}: ${e}`);
+    }
+  });
 
   events.forEach(event => {
     try {
@@ -78,8 +106,14 @@ function scanCalendarAndRespond() {
         : (PropertiesService.getScriptProperties().getProperty('WORKLOAD_LINK_PREFIX') || "https://vector.lightning.force.com/lightning/r/Workload__c/");
       const hasWorkloadLink = description.includes(workloadPrefix);
 
-      // Create agenda in doc for this new meeting
-      createMeetingAgenda(event, description, workloadPrefix);
+      // Route agenda to matching documents
+      const eventWords = getSignificantWords(event.getTitle());
+      docCache.forEach(docInfo => {
+        const hasOverlap = [...eventWords].some(word => docInfo.words.has(word));
+        if (hasOverlap) {
+            createMeetingAgenda(event, description, workloadPrefix, docInfo.id);
+        }
+      });
 
       if (!hasWorkloadLink) {
         try {
@@ -123,13 +157,9 @@ function setupTrigger() {
   console.log("30-minute trigger created successfully.");
 }
 
-function createMeetingAgenda(event, description, workloadPrefix) {
-  const docId = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_ID) 
-    ? ENV.NOTES_DOC_ID 
-    : PropertiesService.getScriptProperties().getProperty('NOTES_DOC_ID');
-    
+function createMeetingAgenda(event, description, workloadPrefix, docId) {
   if (!docId) {
-    console.log("No NOTES_DOC_ID set. Skipping agenda creation.");
+    console.log("No docId provided. Skipping agenda creation.");
     return;
   }
   
@@ -162,6 +192,12 @@ function createMeetingAgenda(event, description, workloadPrefix) {
     
     // Title
     const headerText = `${dateStr} | 📅 ${event.getTitle()}`;
+    
+    // Duplicate prevention: check if this specific agenda header already exists
+    if (targetElement.getText().includes(headerText)) {
+      console.log(`Agenda already exists in doc ${docId} for event: ${event.getTitle()}`);
+      return;
+    }
     
     // Attendees
     const guests = event.getGuestList() || [];
