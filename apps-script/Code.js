@@ -63,8 +63,13 @@ function scanCalendarAndRespond() {
       }
 
       const description = event.getDescription() || "";
-      const workloadPrefix = PropertiesService.getScriptProperties().getProperty('WORKLOAD_LINK_PREFIX') || "https://vector.lightning.force.com/lightning/r/Workload__c/";
+      const workloadPrefix = (typeof ENV !== 'undefined' && ENV.WORKLOAD_LINK_PREFIX) 
+        ? ENV.WORKLOAD_LINK_PREFIX 
+        : (PropertiesService.getScriptProperties().getProperty('WORKLOAD_LINK_PREFIX') || "https://vector.lightning.force.com/lightning/r/Workload__c/");
       const hasWorkloadLink = description.includes(workloadPrefix);
+
+      // Create agenda in doc for this new meeting
+      createMeetingAgenda(event, description, workloadPrefix);
 
       if (!hasWorkloadLink) {
         try {
@@ -106,4 +111,79 @@ function setupTrigger() {
       .everyMinutes(30)
       .create();
   console.log("30-minute trigger created successfully.");
+}
+
+function createMeetingAgenda(event, description, workloadPrefix) {
+  const docId = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_ID) 
+    ? ENV.NOTES_DOC_ID 
+    : PropertiesService.getScriptProperties().getProperty('NOTES_DOC_ID');
+    
+  if (!docId) {
+    console.log("No NOTES_DOC_ID set. Skipping agenda creation.");
+    return;
+  }
+  
+  try {
+    const doc = DocumentApp.openById(docId);
+    let targetElement = doc.getBody();
+    
+    // Try to find the "Notes" tab
+    try {
+      const tabs = doc.getTabs();
+      let notesTab = null;
+      for (let i = 0; i < tabs.length; i++) {
+        if (tabs[i].getTitle().toLowerCase() === "notes") {
+          notesTab = tabs[i];
+          break;
+        }
+      }
+      if (!notesTab && tabs.length > 0) {
+        notesTab = tabs[0];
+      }
+      if (notesTab) {
+        targetElement = notesTab.asDocumentTab().getBody();
+      }
+    } catch (e) {
+      // DocumentApp tabs might not be supported in all contexts yet, ignore and use body
+    }
+
+    // Format Date: Apr 28, 2026
+    const dateStr = Utilities.formatDate(event.getStartTime(), Session.getScriptTimeZone(), "MMM d, yyyy");
+    
+    // Title
+    const headerText = `${dateStr} | 📅 ${event.getTitle()}`;
+    
+    // Attendees
+    const guests = event.getGuestList() || [];
+    const attendeeNames = guests.map(g => g.getName() || g.getEmail()).join(", ");
+    
+    // Workload link
+    let workloadText = "";
+    if (description.includes(workloadPrefix)) {
+      // Try to extract the full link
+      const regex = new RegExp(workloadPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[a-zA-Z0-9_]+');
+      const match = description.match(regex);
+      if (match) workloadText = match[0];
+    }
+    
+    // Insert at top (index 0 and down)
+    let insertionIndex = 0;
+    
+    targetElement.insertParagraph(insertionIndex++, headerText).setHeading(DocumentApp.ParagraphHeading.HEADING2);
+    targetElement.insertParagraph(insertionIndex++, "Attendees: " + attendeeNames);
+    targetElement.insertParagraph(insertionIndex++, "Workload: " + workloadText);
+    targetElement.insertParagraph(insertionIndex++, ""); // Blank line
+    targetElement.insertParagraph(insertionIndex++, "Notes");
+    targetElement.insertListItem(insertionIndex++, "Production consideration like chat history").setGlyphType(DocumentApp.GlyphType.BULLET);
+    targetElement.insertParagraph(insertionIndex++, ""); // Blank line
+    targetElement.insertParagraph(insertionIndex++, "Action items");
+    targetElement.insertParagraph(insertionIndex++, ""); // Blank line
+    targetElement.insertHorizontalRule(insertionIndex++);
+    targetElement.insertParagraph(insertionIndex++, ""); // Blank line
+    
+    console.log("Agenda added for: " + event.getTitle());
+    
+  } catch (e) {
+    console.error("Error creating agenda in doc: " + e.toString());
+  }
 }

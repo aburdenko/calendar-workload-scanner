@@ -16,14 +16,17 @@ If an event meets all the criteria above, the script checks the meeting descript
 - A Vector Workload link that starts with `https://vector.lightning.force.com/lightning/r/Workload__c/` (this default can be overridden via the `WORKLOAD_LINK_PREFIX` Script Property or set in your local `.env` file).
 
 ### Action Taken
-If the link is not found in the description, the script automatically:
-1. Sets your RSVP to **"Tentative"**.
-2. Sends an automated email to the organizer with the event title, date, and a note:
-   *"Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance."*
+If the meeting meets all the criteria, the script will:
+
+1. **Automatically create a Meeting Agenda:** It prepends a structured agenda (Date, Title, Attendees, Workload Link, Notes, and Action Items) to the top of your designated Google Doc (specified by `NOTES_DOC_ID`).
+2. **Check the Workload Link:** If the Workload Link is not found in the description:
+   - Sets your RSVP to **"Tentative"**.
+   - Sends an automated email to the organizer with the event title, date, and a note:
+     *"Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance."*
 
 ## Setup and Deployment
 
-This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task for easy deployment. The deployment process requires authenticating with Google Cloud Platform (GCP) before pushing the Apps Script code.
+This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task for easy deployment. The deployment script automatically synchronizes your local `.env` variables to Apps Script.
 
 ### 1. Prerequisites
 1. Copy the `.env-COPY` template to a new file named `.env`:
@@ -32,7 +35,10 @@ This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task
    ```
 2. Fill in the required variables in your `.env` file:
    - **GCP Authentication:** The deployment script uses `.scripts/configure.sh` to authenticate via a Service Account. You must provide `PROJECT_ID`, `GOOGLE_CLOUD_PROJECT`, `REGION`, `PROJECT_NUMBER`, and the path to your service account key in `GOOGLE_APPLICATION_CREDENTIALS`.
-   - **App Configuration:** Ensure `WORKLOAD_LINK_PREFIX` is set (it defaults to the Salesforce Vector URL). Leave `APP_SCRIPT_IDS` blank if you are deploying for the first time.
+   - **App Configuration:** 
+     - Set `NOTES_DOC_ID` to the ID of the Google Doc where agendas should be created.
+     - Ensure `WORKLOAD_LINK_PREFIX` is set (it defaults to the Salesforce Vector URL).
+     - Leave `APP_SCRIPT_IDS` blank if you are deploying for the first time.
 
 ### 2. Deploying
 You can deploy the script directly from VS Code:
