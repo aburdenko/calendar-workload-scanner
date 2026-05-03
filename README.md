@@ -17,9 +17,8 @@ If an event meets all the criteria above, the script checks the meeting descript
 ### Action Taken
 If the link is not found in the description, the script automatically:
 1. Sets your RSVP to **"Tentative"**.
-2. Appends a note to the calendar event's description:
+2. Sends an automated email to the organizer with the event title, date, and a note:
    *"Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance."*
-3. Sends an automated email to the organizer with the same note, the event title, and the date.
 
 ## Setup and Deployment
 

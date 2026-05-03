@@ -70,12 +70,6 @@ function scanCalendarAndRespond() {
         
         const note = "Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance.";
         
-        try {
-          event.setDescription(description + "\n\nNote: " + note);
-        } catch (e) {
-          console.log("Could not update description for event: " + event.getTitle());
-        }
-        
         if (creators && creators.length > 0) {
           const creatorsToEmail = creators.join(",");
           const subject = `Action Required: Missing Workload ID for "${event.getTitle()}"`;
