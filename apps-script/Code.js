@@ -50,7 +50,7 @@ function scanCalendarAndRespond() {
       }
 
       const myStatus = event.getMyStatus();
-      if (myStatus === CalendarApp.GuestStatus.DECLINED || myStatus === CalendarApp.GuestStatus.TENTATIVE) {
+      if (myStatus === CalendarApp.GuestStatus.NO || myStatus === CalendarApp.GuestStatus.MAYBE) {
         return;
       }
 
@@ -61,7 +61,7 @@ function scanCalendarAndRespond() {
       if (!hasWorkloadLink) {
         try {
           // Wrap this specifically, as it's the source of the "Invalid argument: status" error.
-          event.setMyStatus(CalendarApp.GuestStatus.TENTATIVE);
+          event.setMyStatus(CalendarApp.GuestStatus.MAYBE);
         } catch (statusError) {
           console.log(`Could not set status for event "${event.getTitle()}": ${statusError}`);
           // If we can't set status, we should probably skip sending the email so we don't spam them repeatedly.
