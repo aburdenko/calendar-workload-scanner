@@ -1,6 +1,6 @@
 /**
  * Scans the calendar every hour for new meetings where the user is an attendee but not the organizer.
- * If the description lacks a 10-character string (or go/workload link), sets RSVP to Tentative,
+ * If the description lacks a Vector Workload link, sets RSVP to Tentative,
  * adds a note to the event, and emails the organizer.
  */
 
@@ -43,10 +43,10 @@ function scanCalendarAndRespond() {
       }
 
       const description = event.getDescription() || "";
-      const hasWorkloadLink = description.includes("go/workload");
-      const has10CharString = /\b[a-zA-Z0-9]{10}\b/.test(description);
+      const workloadPrefix = PropertiesService.getScriptProperties().getProperty('WORKLOAD_LINK_PREFIX') || "https://vector.lightning.force.com/lightning/r/Workload__c/";
+      const hasWorkloadLink = description.includes(workloadPrefix);
 
-      if (!hasWorkloadLink && !has10CharString) {
+      if (!hasWorkloadLink) {
         event.setMyStatus(CalendarApp.GuestStatus.TENTATIVE);
         
         const note = "Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance.";

@@ -1,6 +1,6 @@
 # Calendar Workload Scanner
 
-This Google Apps Script automates checking your calendar for new meetings to ensure they have an associated Vector Workload ID.
+This Google Apps Script automates checking your calendar for new meetings to ensure they have an associated Vector Workload link.
 
 ## How It Works
 
@@ -12,11 +12,10 @@ The script runs in the background every hour and scans your calendar for the nex
 4. **You have not already declined or set your RSVP to tentative**.
 
 If an event meets all the criteria above, the script checks the meeting description for:
-- A link to `go/workload`
-- A 10-character alphanumeric string (e.g., `a1b2c3d4e5`)
+- A Vector Workload link that starts with `https://vector.lightning.force.com/lightning/r/Workload__c/` (this default can be overridden via the `WORKLOAD_LINK_PREFIX` Script Property or set in your local `.env` file).
 
 ### Action Taken
-If neither of these are found in the description, the script automatically:
+If the link is not found in the description, the script automatically:
 1. Sets your RSVP to **"Tentative"**.
 2. Appends a note to the calendar event's description:
    *"Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance."*
@@ -27,7 +26,7 @@ If neither of these are found in the description, the script automatically:
 This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task for easy deployment.
 
 ### 1. Prerequisites
-Ensure your local environment is configured with the required `.env` file containing an `APP_SCRIPT_IDS` key.
+Ensure your local environment is configured with the required `.env` file containing an `APP_SCRIPT_IDS` key and the `WORKLOAD_LINK_PREFIX`.
 
 ### 2. Deploying
 You can deploy the script directly from VS Code:
