@@ -18,7 +18,7 @@ If an event meets all the criteria above, the script checks the meeting descript
 ### Action Taken
 If the meeting meets all the criteria, the script will:
 
-1. **Automatically create a Meeting Agenda:** It prepends a structured agenda (Date, Title, Attendees, Workload Link, Notes, and Action Items) to the top of your designated Google Doc (specified by `NOTES_DOC_ID`).
+1. **Automatically create a Meeting Agenda:** It intelligently routes the agenda to a specific customer's Google Doc based on keyword overlaps. It compares the Meeting Title with the aliases provided in your configuration (`NOTES_DOC_KEYS`) and prepends a structured agenda (Date, Title, Attendees, Workload Link, Notes, and Action Items) to the "Notes" tab of the matched document.
 2. **Check the Workload Link:** If the Workload Link is not found in the description:
    - Sets your RSVP to **"Tentative"**.
    - Sends an automated email to the organizer with the event title, date, and a note:
@@ -36,9 +36,10 @@ This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task
 2. Fill in the required variables in your `.env` file:
    - **GCP Authentication:** The deployment script uses `.scripts/configure.sh` to authenticate via a Service Account. You must provide `PROJECT_ID`, `GOOGLE_CLOUD_PROJECT`, `REGION`, `PROJECT_NUMBER`, and the path to your service account key in `GOOGLE_APPLICATION_CREDENTIALS`.
    - **App Configuration:** 
-     - Set `NOTES_DOC_ID` to the ID of the Google Doc where agendas should be created.
-     - Ensure `WORKLOAD_LINK_PREFIX` is set (it defaults to the Salesforce Vector URL).
-     - Leave `APP_SCRIPT_IDS` blank if you are deploying for the first time.
+     - **`NOTES_DOC_KEYS`**: A semicolon-separated list of document aliases or shortlinks (e.g., `"go/merck-notes-2026;go/pfizer-notes"`). The script extracts keywords from these keys (e.g., "merck") and matches them against new calendar event titles.
+     - **`NOTES_DOC_VALUES`**: A semicolon-separated list of corresponding Google Doc URLs or IDs (e.g., `"https://docs.google.com/document/d/18RB_.../edit;https://docs.google.com/document/d/ANOTHER_ID/edit"`). These must map 1-to-1 with the keys above.
+     - **`WORKLOAD_LINK_PREFIX`**: Ensure this is set (it defaults to the Salesforce Vector URL).
+     - **`APP_SCRIPT_IDS`**: Leave this blank if you are deploying for the first time.
 
 ### 2. Deploying
 You can deploy the script directly from VS Code:
