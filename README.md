@@ -21,8 +21,9 @@ If the meeting meets all the criteria, the script will:
 1. **Automatically create a Meeting Agenda:** It intelligently routes the agenda to a specific customer's Google Doc based on keyword overlaps. It compares the Meeting Title with the aliases provided in your configuration (`NOTES_DOC_KEYS`) and prepends a structured agenda (Date, Title, Attendees, Workload Link, Notes, and Action Items) to the "Notes" tab of the matched document.
 2. **Check the Workload Link:** If the Workload Link is not found in the description:
    - Sets your RSVP to **"Tentative"**.
-   - Sends an automated email to the organizer with the event title, date, and a note:
-     *"Awaiting Vector Workload ID. Please add the Vector Workload link to the 'Workload:' field in the Meeting Notes document to confirm Alex's attendance."*
+   - Sends an automated email to the organizer with the event title, date, and a note. The note dynamically changes based on whether an agenda was created:
+     - *If an agenda was created:* "Awaiting Vector Workload ID. Please add the Vector Workload link to the 'Workload:' field in the Meeting Notes document to confirm Alex's attendance." (It will also include the direct link to the notes document).
+     - *If no agenda was created:* "Awaiting Vector Workload ID. Please update the calendar description with the Vector Workload link to confirm Alex's attendance."
 
 ## Setup and Deployment
 
