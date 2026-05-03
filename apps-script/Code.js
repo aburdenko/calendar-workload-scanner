@@ -50,7 +50,15 @@ function scanCalendarAndRespond() {
       }
 
       const myStatus = event.getMyStatus();
-      if (myStatus === CalendarApp.GuestStatus.NO || myStatus === CalendarApp.GuestStatus.MAYBE) {
+      // Only process events where you have not responded yet
+      if (myStatus !== CalendarApp.GuestStatus.INVITED) {
+        return;
+      }
+
+      // To ensure we don't spam older un-RSVP'd events when the script is first deployed,
+      // we only look at events created within the last 2 hours.
+      const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+      if (event.getDateCreated() < twoHoursAgo) {
         return;
       }
 

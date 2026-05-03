@@ -6,10 +6,11 @@ This Google Apps Script automates checking your calendar for new meetings to ens
 
 The script runs in the background every hour and scans your calendar for the next 30 days, looking for new meetings that meet all of the following criteria:
 
-1. **You are an attendee**, but **not the organizer**.
+1. **You are an attendee**, but **not the organizer** (and you are explicitly on the guest list).
 2. **The meeting was organized by a Googler** (the creator's email ends with `@google.com`).
 3. **There are external stakeholders** (at least one guest on the invite has a non-`@google.com` email address).
-4. **You have not already declined or set your RSVP to tentative**.
+4. **The meeting is brand new** (it was created within the last 2 hours).
+5. **You have not RSVP'd yet** (your status is strictly "Invited").
 
 If an event meets all the criteria above, the script checks the meeting description for:
 - A Vector Workload link that starts with `https://vector.lightning.force.com/lightning/r/Workload__c/` (this default can be overridden via the `WORKLOAD_LINK_PREFIX` Script Property or set in your local `.env` file).
