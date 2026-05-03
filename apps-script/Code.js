@@ -139,7 +139,12 @@ function scanCalendarAndRespond() {
           return; 
         }
         
-        const note = "Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance.";
+        let note = "Awaiting Vector Workload ID. ";
+        if (matchedDocUrls.length > 0) {
+          note += "Please add the Vector Workload link to the 'Workload:' field in the Meeting Notes document to confirm Alex's attendance.";
+        } else {
+          note += "Please update the calendar description with the Vector Workload link to confirm Alex's attendance.";
+        }
         
         if (creators && creators.length > 0) {
           const creatorsToEmail = creators.join(",");

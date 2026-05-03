@@ -22,7 +22,7 @@ If the meeting meets all the criteria, the script will:
 2. **Check the Workload Link:** If the Workload Link is not found in the description:
    - Sets your RSVP to **"Tentative"**.
    - Sends an automated email to the organizer with the event title, date, and a note:
-     *"Awaiting Vector Workload ID. Please update the description to confirm Alex's attendance."*
+     *"Awaiting Vector Workload ID. Please add the Vector Workload link to the 'Workload:' field in the Meeting Notes document to confirm Alex's attendance."*
 
 ## Setup and Deployment
 
