@@ -120,10 +120,12 @@ function scanCalendarAndRespond() {
 
       // Route agenda to matching documents
       const eventWords = getSignificantWords(event.getTitle());
+      const matchedDocUrls = [];
       docCache.forEach(docInfo => {
         const hasOverlap = [...eventWords].some(word => docInfo.words.has(word));
         if (hasOverlap) {
             createMeetingAgenda(event, description, workloadPrefix, docInfo.id);
+            matchedDocUrls.push(`https://docs.google.com/document/d/${docInfo.id}/edit`);
         }
       });
 
@@ -142,7 +144,10 @@ function scanCalendarAndRespond() {
         if (creators && creators.length > 0) {
           const creatorsToEmail = creators.join(",");
           const subject = `Action Required: Missing Workload ID for "${event.getTitle()}"`;
-          const body = `${note}\n\nEvent: ${event.getTitle()}\nDate: ${event.getStartTime()}`;
+          let body = `${note}\n\nEvent: ${event.getTitle()}\nDate: ${event.getStartTime()}`;
+          if (matchedDocUrls.length > 0) {
+            body += `\n\nMeeting Notes:\n${matchedDocUrls.join('\n')}`;
+          }
           MailApp.sendEmail(creatorsToEmail, subject, body);
         }
       }
