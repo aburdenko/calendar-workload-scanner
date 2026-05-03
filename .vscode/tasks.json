@@ -4,9 +4,9 @@
   "version": "2.0.0",
   "tasks": [    
     {
-      "label": "Push Apps Script Project",
+      "label": "Deploy Calendar Workload Scanner",
       "type": "shell",
-      "command": "bash -c '. .scripts/configure.sh && clasp push'",
+      "command": "bash -c '.scripts/deploy_apps_script.sh'",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",

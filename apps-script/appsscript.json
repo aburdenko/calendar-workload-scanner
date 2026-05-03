@@ -1,22 +1,7 @@
 {
   "timeZone": "America/New_York",
   "dependencies": {
-    "enabledAdvancedServices": [
-      {
-        "userSymbol": "Tasks",
-        "serviceId": "tasks",
-        "version": "v1"
-      }
-    ]
   },
   "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8",
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/script.container.ui",
-    "https://www.googleapis.com/auth/documents.currentonly",
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/tasks",
-    "https://www.googleapis.com/auth/script.external_request"
-  ]
-  
+  "runtimeVersion": "V8"
 }

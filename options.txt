@@ -1,0 +1,21 @@
+Packaging and Sharing Options for Calendar Workload Scanner
+
+1. The "Make a Copy" Template (Recommended for most teams)
+- How it works: You attach the script to a Google Doc or Google Sheet and share a link. Teammates click `File > Make a copy`. The document will have a custom menu at the top (e.g., `Team Tools > Enable Scanner`). They click it, click "Allow" on the permissions popup, and the hourly trigger is automatically set up for their account.
+- Pros: Extremely easy for non-technical users. No command line or VS Code required.
+- Cons: If you update the code, they have to make a new copy of the template to get the updates.
+
+2. The Internal Wiki (Copy/Paste)
+- How it works: You create an internal wiki page (or Google Doc) with the contents of `Code.js` and a 5-step instruction list. They go to script.google.com, click "New Project", paste your code, and click "Run" on the `createHourlyTrigger` function.
+- Pros: Zero setup for you.
+- Cons: High friction for them, and updates are manual.
+
+3. Share this Repository (Best for Engineers)
+- How it works: If your team already uses VS Code, Node.js, and GitHub. They clone this repo, run `npm install -g @google/clasp`, log in to clasp, and run the exact same "Deploy Calendar Workload Scanner" VS Code task you just used.
+- Pros: Easy to distribute updates via `git pull` and running the deploy task again.
+- Cons: Requires a developer environment setup.
+
+4. Build a Google Workspace Add-on (Enterprise Grade)
+- How it works: You package this into a private Workspace Add-on that they can install from the Google Workspace Marketplace (restricted to your company domain). You create a GCP project, configure OAuth consent, and publish the app internally.
+- Pros: Best user experience. You can push updates centrally and everyone gets them instantly.
+- Cons: Requires dealing with Google Cloud Platform, OAuth consent screens, and potentially getting approval from your company's Google Workspace Admins.
