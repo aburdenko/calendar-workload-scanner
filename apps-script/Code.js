@@ -5,6 +5,8 @@
  */
 
 function getSignificantWords(text) {
+  if (!text) return new Set();
+  
   // split by non-alphanumeric
   const words = text.toLowerCase().split(/[^a-z0-9]+/);
   // filter out extremely common or generic words
