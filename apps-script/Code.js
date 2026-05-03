@@ -10,8 +10,15 @@ function scanCalendarAndRespond() {
   const events = CalendarApp.getDefaultCalendar().getEvents(now, futureDate);
   const myEmail = Session.getActiveUser().getEmail().toLowerCase();
 
+  const processedIdsThisRun = new Set();
+
   events.forEach(event => {
     try {
+      const uniqueId = event.isRecurringEvent() ? event.getEventSeries().getId() : event.getId();
+      if (processedIdsThisRun.has(uniqueId)) {
+        return;
+      }
+
       const creators = event.getCreators() || [];
       if (creators.includes(myEmail)) {
         return;
@@ -61,6 +68,9 @@ function scanCalendarAndRespond() {
       if (event.getDateCreated() < oneHourAgo) {
         return;
       }
+
+      // Passed all filters, mark as processed for this run to avoid recurring series spam
+      processedIdsThisRun.add(uniqueId);
 
       const description = event.getDescription() || "";
       const workloadPrefix = (typeof ENV !== 'undefined' && ENV.WORKLOAD_LINK_PREFIX) 
