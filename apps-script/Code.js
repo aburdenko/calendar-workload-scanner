@@ -56,9 +56,9 @@ function scanCalendarAndRespond() {
       }
 
       // To ensure we don't spam older un-RSVP'd events when the script is first deployed,
-      // we only look at events created within the last 2 hours.
-      const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
-      if (event.getDateCreated() < twoHoursAgo) {
+      // we only look at events created within the last 1 hour.
+      const oneHourAgo = new Date(now.getTime() - (1 * 60 * 60 * 1000));
+      if (event.getDateCreated() < oneHourAgo) {
         return;
       }
 
@@ -91,18 +91,19 @@ function scanCalendarAndRespond() {
   });
 }
 
-function createHourlyTrigger() {
+function setupTrigger() {
   const triggers = ScriptApp.getProjectTriggers();
+  // Delete existing triggers to ensure we apply the new 30-minute interval
   for (let i = 0; i < triggers.length; i++) {
     if (triggers[i].getHandlerFunction() === 'scanCalendarAndRespond') {
-      console.log("Trigger already exists.");
-      return;
+      ScriptApp.deleteTrigger(triggers[i]);
+      console.log("Deleted old trigger.");
     }
   }
   
   ScriptApp.newTrigger('scanCalendarAndRespond')
       .timeBased()
-      .everyHours(1)
+      .everyMinutes(30)
       .create();
-  console.log("Hourly trigger created successfully.");
+  console.log("30-minute trigger created successfully.");
 }
