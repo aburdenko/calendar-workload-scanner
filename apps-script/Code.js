@@ -23,24 +23,34 @@ function scanCalendarAndRespond() {
   const processedIdsThisRun = new Set();
   
   // Build document cache to prevent re-fetching doc titles for every event
-  const docIdsRaw = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_IDS) 
-    ? ENV.NOTES_DOC_IDS 
-    : (PropertiesService.getScriptProperties().getProperty('NOTES_DOC_IDS') || "");
-  const docIds = docIdsRaw.split(';').map(id => id.trim()).filter(id => id.length > 0);
+  // We now use KEYS (the text/name) and VALUES (the URL or ID)
+  const docKeysRaw = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_KEYS) 
+    ? ENV.NOTES_DOC_KEYS 
+    : (PropertiesService.getScriptProperties().getProperty('NOTES_DOC_KEYS') || "");
+  const docValuesRaw = (typeof ENV !== 'undefined' && ENV.NOTES_DOC_VALUES) 
+    ? ENV.NOTES_DOC_VALUES 
+    : (PropertiesService.getScriptProperties().getProperty('NOTES_DOC_VALUES') || "");
+    
+  const docKeys = docKeysRaw.split(';').map(k => k.trim());
+  const docValues = docValuesRaw.split(';').map(v => v.trim());
   
   const docCache = [];
-  docIds.forEach(id => {
-    try {
-      const doc = DocumentApp.openById(id);
-      docCache.push({
-        id: id,
-        name: doc.getName(),
-        words: getSignificantWords(doc.getName())
-      });
-    } catch (e) {
-      console.error(`Could not open doc ID ${id}: ${e}`);
+  for (let i = 0; i < docKeys.length; i++) {
+    if (!docKeys[i] || !docValues[i]) continue;
+    
+    // Extract ID from URL if it's a full URL, otherwise assume it's just an ID
+    let docId = docValues[i];
+    const match = docId.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (match) {
+      docId = match[1];
     }
-  });
+    
+    docCache.push({
+      id: docId,
+      name: docKeys[i],
+      words: getSignificantWords(docKeys[i])
+    });
+  }
 
   events.forEach(event => {
     try {
