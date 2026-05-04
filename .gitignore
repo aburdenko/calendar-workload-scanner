@@ -7,3 +7,6 @@
 apps-script/Sidebar.html
 .env
 Screenshot*.png
+apps-script/Env.js
+.scripts/archive_python_scripts/
+.scripts/mcp_server_selector.py
