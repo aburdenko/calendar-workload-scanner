@@ -16,14 +16,15 @@ If an event meets all the criteria above, the script checks the meeting descript
 - A Vector Workload link that starts with `https://vector.lightning.force.com/lightning/r/Workload__c/` (this default can be overridden via the `WORKLOAD_LINK_PREFIX` Script Property or set in your local `.env` file).
 
 ### Action Taken
-If the meeting meets all the criteria, the script will:
-
-1. **Automatically create a Meeting Agenda:** It intelligently routes the agenda to a specific customer's Google Doc based on keyword overlaps. It compares the Meeting Title with the aliases provided in your configuration (`NOTES_DOC_KEYS`) and prepends a structured agenda (Date, Title, Attendees, Workload Link, Notes, and Action Items) to the "Notes" tab of the matched document.
-2. **Check the Workload Link:** If the Workload Link is not found in the description:
+If the meeting meets all the criteria, the script will check the Workload Link. If the Workload Link is not found in the description, it:
    - Sets your RSVP to **"Tentative"**.
-   - Sends an automated email to the organizer with the event title, date, and a note. The note dynamically changes based on whether an agenda was created:
-     - *If an agenda was created:* "Awaiting Vector Workload ID. Please add the Vector Workload link to the 'Workload:' field in the Meeting Notes document to confirm Alex's attendance." (It will also include the direct link to the notes document).
-     - *If no agenda was created:* "Awaiting Vector Workload ID. Please update the calendar description with the Vector Workload link to confirm Alex's attendance."
+   - Sends an automated email to the organizer with the event title, date, and a note: "Awaiting Vector Workload ID. Please reply directly to this email with the Vector Workload link to confirm Alex's attendance."
+
+**Handling Replies:**
+The script checks your inbox every 15 minutes for replies from organizers. When an organizer replies with a valid workload link, the script:
+   - Automatically updates your RSVP to **"Yes"**.
+   - Appends the Vector Workload link to the bottom of the calendar event's **description** (not the title). 
+   - **Note on Visibility:** Because you are a guest and generally do not have permission to modify the master event for external meetings, these changes are saved to a localized copy on your calendar. The updated description containing the Vector Workload link will be visible **only to you**.
 
 ## Setup and Deployment
 
@@ -37,8 +38,6 @@ This project uses `clasp` (the Google Apps Script CLI) and a custom VS Code task
 2. Fill in the required variables in your `.env` file:
    - **GCP Authentication:** The deployment script uses `.scripts/configure.sh` to authenticate via a Service Account. You must provide `PROJECT_ID`, `GOOGLE_CLOUD_PROJECT`, `REGION`, `PROJECT_NUMBER`, and the path to your service account key in `GOOGLE_APPLICATION_CREDENTIALS`.
    - **App Configuration:** 
-     - **`NOTES_DOC_KEYS`**: A semicolon-separated list of document aliases or shortlinks (e.g., `"go/merck-notes-2026;go/pfizer-notes"`). The script extracts keywords from these keys (e.g., "merck") and matches them against new calendar event titles.
-     - **`NOTES_DOC_VALUES`**: A semicolon-separated list of corresponding Google Doc URLs or IDs (e.g., `"https://docs.google.com/document/d/18RB_.../edit;https://docs.google.com/document/d/ANOTHER_ID/edit"`). These must map 1-to-1 with the keys above.
      - **`WORKLOAD_LINK_PREFIX`**: Ensure this is set (it defaults to the Salesforce Vector URL).
      - **`APP_SCRIPT_IDS`**: Leave this blank if you are deploying for the first time.
 

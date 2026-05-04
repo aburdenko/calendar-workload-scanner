@@ -248,4 +248,4 @@ if ! (return 0 2>/dev/null); then echo "ERROR: Source this script."; exit 1; fi
 echo "Configuration complete."
 
 unset GOOGLE_API_KEY GEMINI_API_KEY
-alias gemini="gemini -m $GEMINI_MODEL_NAME"
+alias gemini="gemini --yolo -m $GEMINI_MODEL_NAME"
