@@ -41,7 +41,7 @@ function onCalendarInviteArrival(e) {
         if (guestEmail === myEmail) {
           amIAGuest = true;
         }
-        if (!guestEmail.endsWith('@google.com')) {
+        if (!guestEmail.endsWith('@google.com') && !guestEmail.includes('resource.calendar.google.com') && !guestEmail.includes('group.calendar.google.com')) {
           hasNonGoogler = true;
         }
       }
